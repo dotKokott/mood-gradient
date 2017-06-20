@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.rita.moodgradient" version="1.0.2" xmlns:android="http://schemas.android.com/apk/res/android" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>mood gradient</name>
+    <description>
+        Moods are weird beings.
+        They are hard to describe.
+        Words are not precise.
+        But colors are.
+
+        Gradients are filling the space between my defined moodstates and show the transitions of my mood.
+        I can fill one screen a day and scroll down to see my history.
+
+        1. I set the color of my present
+        2. On the screen we see how my day has been going so far
+        3. If you scroll down, you can see my entire moodhistory
+    </description>
+    <author email="eperjesirit@gmail.com" href="https://www.rita.cloud/">
+        Rita Eperjesi
+    </author>
+
+    <content src="index.html" />
+
+    <plugin name="cordova-plugin-splashscreen" source="npm" spec="~3.2.1" />
+    <plugin name="cordova-plugin-whitelist" source="npm" spec="~1.2.1" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="orientation" value="portrait" />
+
+    <feature name="http://api.phonegap.com/1.0/network"/>
+
+    <allow-navigation href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <access origin="*" subdomains="true" />
+    <icon src="icon.png" />
+    <splash src="splash.png" />
+
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
+    </platform>
+</widget>

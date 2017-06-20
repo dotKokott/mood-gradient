@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+        <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Mood gradient</title>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/PullToRefresh.js"></script>
+        <script type="text/javascript">
+
+        function fetchJSONFile(path, callback) {
+            var httpRequest = new XMLHttpRequest();
+
+            httpRequest.onreadystatechange = function() {
+             if (httpRequest.readyState === 4) {
+                 if (httpRequest.status === 200) {
+                     var data = JSON.parse(httpRequest.responseText);
+                     if (callback) callback(data);
+                 }
+             }
+            };
+
+            httpRequest.open('GET', path);
+            httpRequest.setRequestHeader('Cache-Control', 'no-cache');
+            httpRequest.send();
+        }
+
+            PullToRefresh.init({
+              mainElement: 'body',
+              onRefresh: function(){
+                  fetchJSONFile(url, function(data){
+                      moods = data;
+                      draw();
+                  });
+               }
+            });
+
+            function hexToRgbA(hex){
+                var c;
+                if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                    c= hex.substring(1).split('');
+                    if(c.length== 3){
+                        c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                    }
+                    c= '0x'+c.join('');
+                    return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',1)';
+                }
+                throw new Error('Bad Hex');
+            }
+
+            var url = "http://rita.schoolofma.org/mood.json";
+            var moods;
+
+            function init() {
+                fetchJSONFile(url, function(data){
+                    moods = data;
+                    draw();
+                });
+
+                setTimeout(init, 10000);
+            }
+
+            function draw() {
+                var cv = document.getElementById('canvas');
+                var ctx = cv.getContext('2d');
+                var days = moods[moods.length -1].day;
+                cv.height = (window.outerHeight * days);
+                cv.style.height  = cv.height + 'px';
+                document.body.style.height = cv.height + 'px';
+                ctx.clearRect(0, 0, cv.width, cv.height);
+
+                var width = cv.width;
+                var height = cv.height;
+
+                var grad = ctx.createLinearGradient(width / 2,0,width / 2, height);
+
+
+                var dp = 1 / days;
+
+                for(var i = 0; i < moods.length; i++) {
+                    var hour = moods[i].h * 60;
+                    var minute = moods[i].m;
+                    var hp = (hour + minute) / (24 * 60);
+
+                    var day = moods[i].day;
+                    var dp = 1 / days;
+
+                    var p = dp * (moods[i].day - 1) + hp * dp;
+                    p = 1 - p;
+                    //console.log(p);
+                    grad.addColorStop(p, hexToRgbA(moods[i].color));
+                }
+
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            init();
+        </script>
+    </body>
+</html>
